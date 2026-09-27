@@ -1,7 +1,2 @@
-project_name         = "nextcloud"
-location             = "denmarkeast"
-resource_group_name  = "nextcloud-rg-project"
-vm_size              = "Standard_D2ls_v6"
-admin_username       = "azureuser"
-ssh_public_key_path  = "./ssh-keys/ssh_key.pub"
+# Public IPv4 adress
 admin_source_ip = "168.149.99.98/32" 

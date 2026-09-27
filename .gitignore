@@ -1,14 +1,12 @@
-# SSH keys
 ssh-keys/
 
-# Environment files
 .env
-# Output of `terraform output` command
-output.txt
 
-# Terraform
+terraform.tfvars
+
 .terraform/
 *.tfstate
 *.tfstate.*
-.terraform.lock.hcl
+
+output.txt
 

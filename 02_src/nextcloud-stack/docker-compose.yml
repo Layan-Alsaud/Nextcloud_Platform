@@ -39,17 +39,14 @@ services:
     volumes:
       - nextcloud_data:/var/www/html
     environment:
-      # Database
       POSTGRES_HOST: db
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      # Admin account (only used on first run / fresh install)
+      # Admin account (only used on first run)
       NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USER}
       NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD}
-      # Access
       NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAINS}
-      # Redis (auto-configures memcache.distributed + memcache.locking in config.php)
       REDIS_HOST: redis
       REDIS_HOST_PASSWORD: ${REDIS_PASSWORD}
     depends_on:

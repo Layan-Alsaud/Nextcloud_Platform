@@ -1,0 +1,1 @@
+# No Python dependencies — this project uses Bash, Terraform, and Docker Compose.

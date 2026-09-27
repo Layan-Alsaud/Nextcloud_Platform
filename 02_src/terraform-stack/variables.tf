@@ -13,7 +13,7 @@ variable "location" {
 variable "resource_group_name" {
   description = "Name of the resource group that holds everything"
   type        = string
-  default     = "nextcloud-rg-project"
+  default     = "nextcloud-project"
 }
 
 variable "vnet_address_space" {
