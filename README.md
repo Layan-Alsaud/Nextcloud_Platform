@@ -27,6 +27,8 @@ requirements.txt Dependency note: no Python dependencies
   a health check before finishing. Safe to re-run any time (after a reboot,
   an IP change, or a full `terraform destroy`/`apply` cycle) — verified for
   both idempotent re-runs and true fresh installs.
+ - **Operational scripts** — additional Bash scripts provide backup, cleanup,
+  and redeployment functions for easier maintenance of the Nextcloud stack.
 
 ## Prerequisites
 
@@ -79,6 +81,45 @@ admin credentials it generated (`NEXTCLOUD_ADMIN_USER`/
 `NEXTCLOUD_ADMIN_PASSWORD` in the VM's `.env`, valid only for the very first
 install and not kept in sync afterward; to reset the password later, run `docker compose exec -u www-data app php occ user:resetpassword <username>` on the VM).
 
+## Operational scripts
+
+The operational scripts are located in:
+
+`02_src/nextcloud-stack/scripts/`
+
+They should be executed from the Nextcloud project directory on the Azure VM.
+
+`backup.sh`
+Creates an on-demand backup of the PostgreSQL database and Nextcloud data:
+
+```bash
+./scripts/backup.sh
+```
+
+Backup files are stored in the \`backups/\` directory on the VM.
+
+`cleanup.sh`
+Stops and removes the running containers while keeping the persistent Docker volumes:
+
+```bash
+./scripts/cleanup.sh
+```
+
+This allows the application to be stopped without deleting existing users, files, or database data.
+
+`redeploy.sh`
+Redeploys the Nextcloud stack by stopping the current deployment, pulling Docker images, and running the main deployment script again:
+
+```bash
+./scripts/redeploy.sh
+```
+
+After redeployment, the service status can be checked with:
+
+```bash
+docker compose ps
+```
+
 ## Security considerations
 
 - **Network access control:** the NSG opens only ports 22, 80, and 443,
@@ -100,6 +141,10 @@ install and not kept in sync afterward; to reset the password later, run `docker
   placeholder template, is included. `deploy.sh` generates strong random
   secrets automatically on first run.
 - **User and group access control:** internal departments are modeled as Nextcloud groups (e.g. Management, Engineering & IT, Sales & Marketing), each with its own shared folder. Where a department manager needs to manage their team's  accounts, they are granted "administered groups" rights over *only their own* department's group, following the principle of least privilege, rather than granting broad administrative rights across departments.
+- **Backup and data protection:** an on-demand backup script is provided
+  to create backups of the PostgreSQL database and Nextcloud application data.
+  Backup files are stored locally on the VM and are not intended to be committed
+  to the Git repository.
 
 ## Repeatability
 
@@ -135,3 +180,5 @@ of each stage and `01_data/` for sample documents used in the demo.
   automatically against the VM's current public IP on every run.
 - Forgot the admin password: reset it with
   `docker compose exec -u www-data app php occ user:resetpassword <username>`.
+- If the application needs to be stopped without deleting persistent data,
+  run `./scripts/cleanup.sh`.
