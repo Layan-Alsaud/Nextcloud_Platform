@@ -1,3 +1,0 @@
-public_ip_address = "9.205.158.200"
-ssh_command = "ssh -i ./ssh-keys/ssh_key azureuser@9.205.158.200"
-
