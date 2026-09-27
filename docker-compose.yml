@@ -95,6 +95,5 @@ networks:
     driver: bridge
     ipam:
       config:
-        # Fixed subnet so deploy.sh can reliably tell Nextcloud to trust
-        # this exact range as a proxy (trusted_proxies) — see deploy.sh.
+        # Fixed subnet so deploy.sh can reliably tell Nextcloud to trust the Caddy reverse proxy container
         - subnet: 172.28.0.0/24

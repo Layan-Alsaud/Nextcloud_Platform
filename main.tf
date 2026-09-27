@@ -1,14 +1,8 @@
-# ---------------------------------------------------------
-# Resource group — the folder that holds everything below
-# ---------------------------------------------------------
 resource "azurerm_resource_group" "main" {
   name     = var.resource_group_name
   location = var.location
 }
 
-# ---------------------------------------------------------
-# Virtual network — your private address space
-# ---------------------------------------------------------
 resource "azurerm_virtual_network" "main" {
   name                = "${var.project_name}-vnet"
   address_space       = var.vnet_address_space
@@ -16,9 +10,6 @@ resource "azurerm_virtual_network" "main" {
   resource_group_name = azurerm_resource_group.main.name
 }
 
-# ---------------------------------------------------------
-# Subnet — the slice of the VNet where the VM actually lives
-# ---------------------------------------------------------
 resource "azurerm_subnet" "main" {
   name                 = "${var.project_name}-subnet"
   resource_group_name  = azurerm_resource_group.main.name
@@ -26,13 +17,6 @@ resource "azurerm_subnet" "main" {
   address_prefixes     = var.subnet_address_prefix
 }
 
-# ---------------------------------------------------------
-# Network Security Group — the firewall
-#________________Layan_____________________
-# Day 1: SSH open from anywhere so you can get in and test.
-# Week 2 Day 1-2 will lock this down to your IP only — see the
-# "TODO" comment below, don't forget to come back to it.
-# ---------------------------------------------------------
 resource "azurerm_network_security_group" "main" {
   name                = "${var.project_name}-nsg"
   location            = azurerm_resource_group.main.location
@@ -75,9 +59,6 @@ resource "azurerm_network_security_group" "main" {
   }
 }
 
-# ---------------------------------------------------------
-# Public IP — makes the VM reachable from the internet
-# ---------------------------------------------------------
 resource "azurerm_public_ip" "main" {
   name                = "${var.project_name}-public-ip"
   location            = azurerm_resource_group.main.location
@@ -86,9 +67,6 @@ resource "azurerm_public_ip" "main" {
   sku                 = "Standard"
 }
 
-# ---------------------------------------------------------
-# Network interface — the VM's virtual network card
-# ---------------------------------------------------------
 resource "azurerm_network_interface" "main" {
   name                = "${var.project_name}-nic"
   location            = azurerm_resource_group.main.location
@@ -102,17 +80,13 @@ resource "azurerm_network_interface" "main" {
   }
 }
 
-# ---------------------------------------------------------
-# Connect the NSG to the NIC so the firewall rules apply
-# ---------------------------------------------------------
+
 resource "azurerm_network_interface_security_group_association" "main" {
   network_interface_id     = azurerm_network_interface.main.id
   network_security_group_id = azurerm_network_security_group.main.id
 }
 
-# ---------------------------------------------------------
-# The VM itself — Ubuntu, SSH key auth (no passwords)
-# ---------------------------------------------------------
+
 resource "azurerm_linux_virtual_machine" "main" {
   name                = "${var.project_name}-vm"
   resource_group_name = azurerm_resource_group.main.name

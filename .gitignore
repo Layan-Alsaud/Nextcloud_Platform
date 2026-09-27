@@ -3,13 +3,12 @@ ssh-keys/
 
 # Environment files
 .env
-
-
-# Deploy script
-deploy.sh
+# Output of `terraform output` command
+output.txt
 
 # Terraform
 .terraform/
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
+
