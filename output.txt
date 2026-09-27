@@ -1,0 +1,3 @@
+public_ip_address = "9.205.28.12"
+ssh_command = "ssh azureuser@9.205.28.12"
+

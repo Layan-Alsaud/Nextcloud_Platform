@@ -1,0 +1,15 @@
+# SSH keys
+ssh-keys/
+
+# Environment files
+.env
+
+
+# Deploy script
+deploy.sh
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl

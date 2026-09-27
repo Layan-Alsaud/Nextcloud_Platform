@@ -1,0 +1,38 @@
+# Caddyfile TEMPLATE — do not edit "Caddyfile" directly, it's generated
+# from this file by deploy.sh every run and will be overwritten.
+#
+# The site address below is filled in with the VM's current public IP by
+# deploy.sh.
+#
+# --- TLS status: DEFERRED ON PURPOSE (not an oversight) -----------------
+# We tried serving this over HTTPS with "tls internal" (Caddy's own local
+# CA issuing a self-signed cert for the bare IP, since no public domain is
+# configured here). Certificate issuance itself worked, but every client
+# (browser and curl, from both outside the VM and via loopback on the VM
+# itself) failed the actual TLS handshake with a low-level
+# "internal_error" alert from Caddy — reproduced across a fresh cert and a
+# fully wiped certificate store, so it isn't cert corruption. Root cause
+# not yet confirmed (candidate: a TLS 1.3 negotiation incompatibility).
+# See the project plan doc for the full diagnostic trail.
+#
+# Given the project deadline, we deliberately paused that investigation
+# and are serving plain HTTP for now via the explicit "http://" scheme
+# below, which tells Caddy not to attempt automatic HTTPS for this site
+# at all (so it can't hit that bug). Caddy is still doing its job as a
+# reverse proxy in front of Nextcloud — just without TLS termination.
+#
+# --- To re-enable HTTPS later, if time allows ---------------------------
+# 1. Change the site address below from "http://{{VM_PUBLIC_IP}}" to just
+#    "{{VM_PUBLIC_IP}}" (drop the "http://" prefix).
+# 2. Add a "tls internal" line back inside the block.
+# 3. In deploy.sh: change wait_for_health()'s URL back to "https://" (with
+#    curl's -k flag, since it's still a self-signed cert), and change
+#    ensure_reverse_proxy_config()'s overwriteprotocol value back to
+#    "https".
+# 4. Re-run deploy.sh, then pick the TLS debugging back up from the
+#    project plan doc's diagnostic trail (the loopback + --tls-max 1.2
+#    test was the next planned step).
+
+http://{{VM_PUBLIC_IP}} {
+	reverse_proxy app:80
+}
