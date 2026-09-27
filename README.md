@@ -4,12 +4,15 @@ An internal file-sharing and collaboration platform built on Nextcloud, provisio
 
 ## Repository structure
 
-01_data/ Sample from the workflow demo
+```
+01_data/                Sample from the workflow demo
 02_src/
-terraform-stack/ Infrastructure as code (Azure resource group, VNet, NSG, VM)
-nextcloud-stack/ Application deployment (Docker Compose stack + automation)
-03_assets/ Screenshots 
-requirements.txt Dependency note: no Python dependencies
+  terraform-stack/      Infrastructure as code (Azure resource group, VNet, NSG, VM)
+  nextcloud-stack/      Application deployment (Docker Compose stack + automation)
+    scripts/            Operational scripts (backup, cleanup, redeploy)
+03_assets/              Screenshots
+requirements.txt        Dependency note: no Python dependencies
+```
 
 
 ## Architecture
@@ -20,14 +23,14 @@ requirements.txt Dependency note: no Python dependencies
   - `db` — PostgreSQL 18 (Alpine)
   - `redis` — Redis 7, used for caching and file locking
   - `app` — Nextcloud 29 (Apache)
-  - `caddy` — reverse proxy in front of Nextcloud (see "HTTPS" below)
+  - `caddy` — reverse proxy in front of Nextcloud (see "Security considerations" below)
 - **`deploy.sh`** — idempotent Bash automation: installs Docker if missing,
   bootstraps `.env` with randomly generated secrets, auto-detects the VM's
   public IP, renders the Caddy configuration, starts the stack, and waits for
   a health check before finishing. Safe to re-run any time (after a reboot,
   an IP change, or a full `terraform destroy`/`apply` cycle) — verified for
   both idempotent re-runs and true fresh installs.
- - **Operational scripts** — additional Bash scripts provide backup, cleanup,
+ -**Operational scripts** — additional Bash scripts provide backup, cleanup,
   and redeployment functions for easier maintenance of the Nextcloud stack.
 
 ## Prerequisites
@@ -41,7 +44,7 @@ requirements.txt Dependency note: no Python dependencies
 ## Setup — Part 1: Provision the infrastructure
 
 ```bash
-cd 02_src/terraform
+cd 02_src/terraform-stack
 cp terraform.tfvars.example terraform.tfvars
 ```
 
@@ -65,11 +68,12 @@ below.
 
 From `02_src/nextcloud-stack/`:
 ```bash
-scp -i /path/to/your/key.pem docker-compose.yml .env.example deploy.sh Caddyfile.template \
+ssh -i /path/to/your/key.pem azureuser@<VM_PUBLIC_IP> "mkdir -p ~/nextcloud"
+scp -i /path/to/your/key.pem -r docker-compose.yml .env.example deploy.sh Caddyfile.template scripts \
     azureuser@<VM_PUBLIC_IP>:~/nextcloud/
 ssh -i /path/to/your/key.pem azureuser@<VM_PUBLIC_IP>
 cd ~/nextcloud
-chmod +x deploy.sh
+chmod +x deploy.sh scripts/*.sh
 ./deploy.sh
 ```
 
@@ -96,7 +100,7 @@ Creates an on-demand backup of the PostgreSQL database and Nextcloud data:
 ./scripts/backup.sh
 ```
 
-Backup files are stored in the \`backups/\` directory on the VM.
+Backup files are stored in the `backups/` directory on the VM.
 
 `cleanup.sh`
 Stops and removes the running containers while keeping the persistent Docker volumes:
